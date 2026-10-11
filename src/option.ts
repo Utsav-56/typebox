@@ -1,8 +1,12 @@
 import type { SchemaOptions } from "@sinclair/typebox";
-import type { TSchema } from "..";
 
-export interface Options extends SchemaOptions {
+export interface Options<
+  // oxlint-disable-next-line typescript/no-explicit-any as the main typebox allows any we cannot fight agains it
+  Default = any,
+  example = Default[],
+> extends SchemaOptions {
   error?: string;
 
-  message?: (value: unknown, schema: TSchema) => string;
+  default?: Default;
+  examples?: example;
 }

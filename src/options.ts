@@ -8,6 +8,8 @@ import type {
 } from "@sinclair/typebox";
 import type { Options } from "./option";
 
+export type { Options };
+
 // export interface Options extends SchemaOptions {
 // 	error?: string;
 // }
