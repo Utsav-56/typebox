@@ -1,13 +1,8 @@
 export function coereceToNumber(value: unknown): number | undefined {
-  if (typeof value === "number") {
-    return value;
-  }
+  const numberValue = typeof value === "number" ? value : Number(value);
 
-  if (typeof value === "string") {
-    const parsed = parseFloat(value);
-    if (!isNaN(parsed)) {
-      return parsed;
-    }
+  if (isNaN(numberValue)) {
+    return undefined;
   }
 
   return undefined;
