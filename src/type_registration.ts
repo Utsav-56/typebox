@@ -13,13 +13,12 @@ type RegistryValidator<Sc extends TSchema> = (
 export abstract class Registry<
   Sc extends TSchema,
   Parsed = unknown,
-  Encoded = unknown,
+  Encoded = Parsed,
 > {
   private readonly kind: string;
 
-  constructor(kind: string, validator: RegistryValidator<Sc>) {
+  constructor(kind: string) {
     this.kind = kind;
-    this.validator = validator;
 
     this.SetValidator();
     this.SetError();

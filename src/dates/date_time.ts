@@ -29,9 +29,9 @@ export interface TDateTime extends TTransform<TSchema, Date>, DateTimeOptions {
   static: Date;
 }
 
-class DateTimeRegistry extends Registry<TDateTime, Date> {
+class DateTimeRegistry extends Registry<TDateTime, Date, string> {
   constructor() {
-    super("DateTime", validateDate);
+    super("DateTime");
   }
 
   parse(value: unknown): Date {
@@ -71,6 +71,28 @@ export function DateTime(options?: DateTimeOptions): TDateTime {
     .Transform(t.Unsafe(schema))
     .Decode(registry.parse.bind(registry))
     .Encode(registry.encode.bind(registry)) as TDateTime;
+}
+
+export function PastDateTime(
+  options?: Omit<DateTimeOptions, "max">,
+): TDateTime {
+  const schema: TDateTime = DateTime({
+    ...options,
+    max: new Date(),
+  });
+
+  return schema;
+}
+
+export function FutureDateTime(
+  options?: Omit<DateTimeOptions, "min">,
+): TDateTime {
+  const schema: TDateTime = DateTime({
+    ...options,
+    min: new Date(),
+  });
+
+  return schema;
 }
 
 const MONTH_NAMES = [
