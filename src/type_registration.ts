@@ -30,7 +30,7 @@ export abstract class Registry<
 
   abstract validator(schema: Sc, value: unknown): string | null;
 
-  validate(schema: unknown, value: unknown): string | null {
+  private validate(schema: unknown, value: unknown): string | null {
     const validatedSchema = this.validateSchema(schema);
     if (validatedSchema === null) {
       console.error(
@@ -65,7 +65,7 @@ export abstract class Registry<
     });
   }
 
-  validateSchema(schema: unknown): Sc | null {
+  private validateSchema(schema: unknown): Sc | null {
     if (typeof schema !== "object" || schema === null) {
       return null;
     }
