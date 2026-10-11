@@ -1,0 +1,102 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": [
+    "typescript",
+    "unicorn",
+    "oxc",
+    "nextjs",
+    "jsdoc",
+    "promise",
+    "import"
+  ],
+  "categories": {
+    "correctness": "error", // Always error on bugs
+    // "suspicious": "error", // Error on likely bugs (e.g. any, unsafe casts)
+    // "pedantic": "warn", // Warn on strict style guidelines
+    // "style": "warn", // Warn on stylistic issues (handled mostly by formatter, but some linter rules apply)
+    "restriction": "off" // Turn on selectively below
+  },
+  "ignorePatterns": [
+    "**/node_modules/**",
+    "**/.output/**",
+    "**/dist/**",
+    "**/.nuxt/**",
+    "**/.next/**",
+    ".agents/**",
+    ".aiassistant/**",
+    ".githooks/**",
+    "backend/env/**",
+    "drizzle-typebox/**"
+  ],
+  "rules": {
+    // ---  TypeScript Strictness (Type-Aware) ---
+    "typescript/no-floating-promises": "error", // MUST HAVE: Catches unawaited async calls
+    "typescript/await-thenable": "error", // Prevents awaiting non-promises
+    "typescript/no-explicit-any": "error", // Discourage 'any', but allow warn for migration
+    "typescript/consistent-type-imports": "error", // Enforce `import type` for performance
+    "typescript/ban-tslint-comment": "error",
+    "typescript/use-unknown-in-catch-callback-variable": "error",
+    //
+    // Js doc
+    //
+    "jsdoc/require-param-description": "allow",
+    "jsdoc/require-param": "allow",
+    //
+    // next js
+    //
+    "nextjs/no-async-client-component": "error",
+    "nextjs/no-html-link-for-pages": "deny",
+    "nextjs/no-page-custom-font": "error",
+    "nextjs/no-img-element": "error", // Use next/image to avoid Layout Shifts and massive LCP penalties
+    "nextjs/no-head-element": "error", // Enforces metadata API or next/head instead of native <head>
+    "nextjs/inline-script-id": "error", // Inline next/script needs an ID for proper DOM hydration tracking
+    "nextjs/no-script-component-in-head": "error", // Prevents next/script inside <head> which breaks execution order
+    "nextjs/no-css-tags": "error", // Blocks raw CSS tags that bypass Next.js layout bundling
+    "nextjs/no-document-import-in-page": "error", // Restricts custom _document logic to protect layout structures
+    "nextjs/no-typos": "error", // Catches typo mistakes in lifecycle hooks
+    //
+    // react
+    //
+    "react/jsx-key": "error", // Missing keys in loops trigger dynamic rendering rendering mismatches
+    "react/no-array-index-key": "warn", // Using array index as keys causes UI state bugs during re-ordering
+    "react/no-children-prop": "error", // Enforces children as child nodes, preventing layout syntax crashes
+    "react/no-danger-with-children": "error", // Using dangerouslySetInnerHTML AND children simultaneously wipes layout
+    "react/no-direct-mutation-state": "error", // Directly modifying state prevents re-renders (runtime logic desync)
+    "react/no-render-return-value": "error", // Using legacy render returns crashes modern concurrent React
+    "react/require-render-return": "error", // Forgetting returns in class render() paths triggers complete runtime crashes
+    "react/void-dom-elements-no-children": "error", // Adding children to void tags (<br />, <input />) triggers DOM structure crash
+    "react/no-string-refs": "error", // Deprecated string refs throw execution warnings/exceptions in strict mode
+    //
+    // typescript
+    //
+    "unicorn/no-abusive-eslint-disable": "error",
+    "no-unused-vars": "allow",
+    "no-unused-expressions": "allow",
+    // "jsdoc/check-property-names": "warn",
+    // "jsdoc/check-tag-names": "warn",
+    // "jsdoc/require-returns": "warn",
+    //
+    //
+    "import/no-cycle": "error",
+    "no-unsafe-declaration-merging": "error",
+    "typescript/ban-ts-comment": "error",
+    //
+    // promises  releted lints
+    //
+    "promise/prefer-await-to-then": "error",
+    "no-async-promise-executor": "error",
+    "typescript/no-misused-promises": "error",
+    // "typescript/no-unsafe-call": "error",
+    "typescript/no-unsafe-member-access": "error",
+    "typescript/no-unsafe-assignment": "error",
+    "typescript/no-unsafe-return": "error"
+  },
+  "env": {
+    "builtin": true,
+    "node": true
+  },
+  "options": {
+    "typeAware": true,
+    "typeCheck": true
+  }
+}
