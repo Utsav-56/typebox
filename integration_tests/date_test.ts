@@ -1,17 +1,20 @@
 import { t, type Static } from "..";
-import { DateTime } from "../src/dates/date_time";
 
 const userSchema = t.Object({
-  date: DateTime({
+  date: t.DateTime({
     min: new Date("2020-01-01T00:00:00Z"),
     max: new Date("2025-01-01T00:00:00Z"),
   }),
   name: t.String(),
+  password: t.Password({
+    requireDigit: false,
+  }),
 });
 
 const validData = {
   date: "2023-08-15T12:34:56Z",
   name: "John Doe",
+  password: "password123",
 };
 
 const invalidData = {
@@ -43,6 +46,3 @@ if (error) {
 if (!data) {
   throw new Error("Data is undefined, validation failed.");
 }
-
-const dt = data.date;
-console.log("Parsed Date:", dt.getFullYear());

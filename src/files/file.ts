@@ -160,3 +160,11 @@ export function MultipleImageFiles(
 ): TArray<TImageFileSchema> {
   return t.Array(ImageFile(options));
 }
+
+export const FileExtensionImplementation = {
+  File: TFile,
+  ImageFile,
+  MultipleImageFiles,
+};
+
+export type FileExtension = typeof FileExtensionImplementation;

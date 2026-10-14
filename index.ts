@@ -1,43 +1,45 @@
 import {
-  type Static,
-  type TArray,
-  type TDate,
-  type TLiteral,
-  type TNull,
-  type TNumber,
-  type TObject,
-  type TOptional,
-  type TProperties,
-  type TSchema,
-  type TString,
-  type TTuple,
-  type TUnion,
-  type TUnsafe,
   FormatRegistry,
   Type as TypeBoxBuilder,
   TypeRegistry,
 } from "@sinclair/typebox";
-import { Value } from "@sinclair/typebox/value";
 
-import * as IDates from "./src/date-types";
-import * as IFile from "./src/file-types";
-import * as IGeography from "./src/geography-types";
-import * as INumber from "./src/number-types";
-import type {
-  CsvOptions,
-  CustomFileOptions,
-  FormatlessStringOption,
-  OneOfOptions,
-  Options,
-  PasswordOptions,
-  TCsv,
-  TFileSchema,
-  TPassword,
-  TripSchemaExtensions,
-} from "./src/options";
-import * as ITrip from "./src/trip-types";
-import * as IUtils from "./src/util-types";
-import type { ValidationError } from "./src/validation/error";
+import * as TypeBox from "@sinclair/typebox";
+
+import {
+  ValidationExtensionImplementation,
+  type ValidationExtension,
+} from "./src/validation";
+import { DateExtensionImplementation, type DateExtension } from "./src/dates";
+import {
+  AuthExtensionImplementation,
+  type AuthExtension,
+} from "./src/auth_releted";
+import {
+  CoordinateExtensionImplementation,
+  type CoordinateExtension,
+} from "./src/coordinates";
+import {
+  FileExtensionImplementation,
+  type FileExtension,
+} from "./src/files/file";
+import {
+  NumberExtensionImplementation,
+  type NumberExtension,
+} from "./src/numbers";
+
+export type * from "@sinclair/typebox";
+
+// destructure everything from TypeBox *except* Type
+const { Type: _, ...RestOfValues } = TypeBox;
+
+export { RestOfValues };
+
+export { FormatRegistry, Kind, TypeRegistry } from "@sinclair/typebox";
+
+export { Value } from "@sinclair/typebox/value";
+
+export * from "./src/validation/error";
 
 /**
  * ? Fork of ajv-formats without ajv as dependencies
@@ -180,358 +182,28 @@ if (!TypeRegistry.Has("Unsafe")) {
   });
 }
 
-type TryParseResponse<T extends TSchema> = {
-  data: Static<T> | null;
-  error: ValidationError[] | null;
-};
-
 // use the options directly from the elysia type system for the file schema
 // to allow elyisa parses it perfectly and also to allow the typebox to parse it perfectly
 
-export interface CustomExtensions {
-  // file releted
-  File: (options?: CustomFileOptions) => TFileSchema;
-  Image: (options?: Options) => TFileSchema;
-  MultipleImage: (options?: Options) => TArray<TUnsafe<File>>;
+export interface CustomExtensions
+  extends
+    ValidationExtension,
+    DateExtension,
+    AuthExtension,
+    CoordinateExtension,
+    FileExtension,
+    NumberExtension {}
 
-  /// utlities
-
-  Nullable: <T extends TSchema>(
-    schema: T,
-    options?: Options,
-  ) => TOptional<TUnion<[T, TNull]>>;
-  Url: (options?: IUtils.UrlOptions) => IUtils.TUrl;
-  Email: (options?: FormatlessStringOption) => TString;
-  Password: (Options?: PasswordOptions) => TPassword;
-
-  Uuid: (options?: FormatlessStringOption) => TString;
-  StringArray: (options?: Options) => TArray<TString>;
-
-  // date and times
-  IsoTimestamp: (options?: Options) => TString;
-  CoerecedDate: (options?: Options) => TDate;
-  PastDate: (options?: Options) => TDate;
-  FutureDate: (options?: Options) => TDate;
-  TstzRange: (options?: Options) => TObject<{
-    start: TOptional<TString>;
-    end: TOptional<TString>;
-  }>;
-
-  // numbers
-  CoercedNumber: (options?: Options) => TNumber;
-  PositiveNumber: (options?: Options) => TNumber;
-
-  // geography
-  Coordinate: (option?: Options) => TTuple<[TNumber, TNumber]>;
-  LatLngObject: (option?: Options) => TObject<{
-    lat: TNumber;
-    lng: TNumber;
-  }>;
-  GeographyPointTuple: TTuple<[TNumber, TNumber]>; // direct use no method
-
-  Parse<T extends TSchema>(schema: T, data: unknown): Static<T>;
-  TryParse<T extends TSchema>(schema: T, data: unknown): TryParseResponse<T>;
-
-  OneOf<ST extends readonly string[]>(
-    values: ST,
-    options?: OneOfOptions<ST>,
-  ): TUnion<TLiteral<ST[number]>[]>;
-
-  OptionalOneOf<ST extends readonly string[]>(
-    values: ST,
-    options?: OneOfOptions<ST>,
-  ): TOptional<TUnion<TLiteral<ST[number]>[]>>;
-
-  asCamelCaseSchema<T extends TObject<TProperties>>(
-    schema: T,
-  ): CamelCaseSchema<T>;
-
-  WebUrl: (options?: IUtils.ProtocolLessUrl) => IUtils.TUrl;
-  PgUrl: (options?: IUtils.ProtocolLessUrl) => IUtils.TUrl;
-  NodeEnv: TUnion<TLiteral<"production" | "development" | "test">[]>;
-
-  UnionToMap: <T extends TUnion<TLiteral<string>[]>>(
-    schema: T,
-  ) => Record<string, Static<T>>;
-
-  CoerecedString: (options?: Options) => TString;
-
-  PaginationSchema: TObject<{
-    pageMeta: TObject<{
-      total: TNumber;
-      page: TNumber;
-      pageSize: TNumber;
-      totalPages: TNumber;
-    }>;
-  }>;
-
-  WithPagination<const T extends TSchema[]>(
-    schema: T,
-    options?: Options,
-  ): TypeBox.TComposite<[TPaginationSchema, ...T]>;
-
-  AddsPagination<T extends TSchema>(
-    schema: T,
-    options?: Options,
-  ): TypeBox.TComposite<[TPaginationSchema, T]>;
-
-  /**
-   * The trip releted schemas
-   * they must be accessed as, t.trip.
-   */
-  trip: TripSchemaExtensions;
-
-  /**
-   * the rating schema is a number between 1 and 5,
-   *
-   * @param options the options
-   * @returns
-   */
-  Rating: (options?: Options) => TNumber;
-
-  Csv: (options?: CsvOptions) => TCsv;
-  tripSeasons: TUnion<TLiteral<"Spring" | "Summer" | "Autumn" | "Winter">[]>;
-  difficultyLevels: TUnion<TLiteral<"Easy" | "Moderate" | "Hard">[]>;
-}
-
-export const t = Object.assign({}, TypeBoxBuilder) as typeof TypeBoxBuilder &
-  CustomExtensions;
+export const t = Object.assign(
+  {
+    ...ValidationExtensionImplementation,
+    ...DateExtensionImplementation,
+    ...AuthExtensionImplementation,
+    ...CoordinateExtensionImplementation,
+    ...FileExtensionImplementation,
+    ...NumberExtensionImplementation,
+  },
+  TypeBoxBuilder,
+) as typeof TypeBoxBuilder & CustomExtensions;
 
 export type TType = typeof t;
-
-t.Csv = (options?: CsvOptions) => Csv(options);
-
-t.Rating = (options?: Options) =>
-  IUtils.CoercedNumber({
-    minimum: 1,
-    maximum: 5,
-    description: "A rating between 1 and 5",
-    error: "Rating must be between 1 and 5",
-    examples: [1, 2, 3, 4, 5],
-    ...options,
-  });
-
-// t.trip.dayWiseScheduleSchema = ITrip.dayWiseScheduleSchema;
-// t.trip.destinationInformationDetailsSchema = ITrip.destinationInformationDetailsSchema;
-// t.trip.tripOverviewSchema = ITrip.tripOverviewSchema;
-// t.trip.tripRoutesSchema = ITrip.tripRoutesSchema;
-
-export const paginationSchema = t.Object({
-  pageMeta: t.Object({
-    total: t.Number({
-      description: "Total number of items available",
-      examples: [100, 200, 300],
-    }),
-    page: t.Number({
-      description: "Current page number (1-based index)",
-      default: 1,
-      examples: [1, 2, 3],
-    }),
-    pageSize: t.Number({
-      description: "Number of items per page",
-    }),
-    totalPages: t.Number({
-      description:
-        "Total number of pages available, always rounded up to the nearest integer and calculated as, Math.ceil(total/pageSize)",
-      examples: [10, 20, 30],
-    }),
-  }),
-});
-
-export type TPaginationSchema = typeof paginationSchema;
-
-t.PaginationSchema = paginationSchema;
-
-t.WithPagination = function <const T extends TSchema[]>(
-  schema: T,
-  options?: Options,
-): TypeBox.TComposite<[TPaginationSchema, ...T]> {
-  return TypeBox.Composite([paginationSchema, ...schema], options);
-};
-
-t.AddsPagination = function <T extends TSchema>(
-  schema: T,
-  options?: Options,
-): TypeBox.TComposite<[TPaginationSchema, T]> {
-  return TypeBox.Composite([paginationSchema, schema], options);
-};
-
-function toLabel(value: string) {
-  return value
-    .replaceAll("_", " ")
-    .replace(/\b\w/g, (char) => char.toUpperCase());
-}
-
-t.CoerecedString = IUtils.CoerecedString;
-
-/** Replaces the default string to the coereced one */
-
-t.UnionToMap = <T extends TUnion<TLiteral<string>[]>>(
-  schema: T,
-): Record<string, Static<T>> => {
-  return Object.fromEntries(
-    // schema.anyOf is fully typed because of TUnion<TLiteral<string>[]>
-    schema.anyOf.map((literal) => {
-      const value = literal.const;
-      return [toLabel(value), value];
-    }),
-  ) as Record<string, Static<T>>;
-};
-
-t.asCamelCaseSchema = asCamelCaseSchema;
-
-t.OneOf = IUtils.OneOfArray;
-t.NodeEnv = IUtils.OneOfArray(["production", "development", "test"] as const, {
-  default: "development",
-});
-
-t.OptionalOneOf = IUtils.OptionalOneOfArray;
-
-t.File = IFile.TFile;
-t.Image = IFile.Image;
-t.MultipleImage = IFile.MultipleImages;
-
-t.Nullable = IUtils.Nullable;
-t.Url = IUtils.Url;
-t.PgUrl = IUtils.PgUrl;
-t.WebUrl = IUtils.WebUrl;
-
-t.Email = IUtils.Email;
-t.Uuid = IUtils.Uuid;
-t.StringArray = IUtils.StringArray;
-t.Password = IUtils.Password;
-
-t.IsoTimestamp = IDates.IsoTimestamp;
-t.CoerecedDate = IDates.CoercedDate;
-t.PastDate = IDates.PastDate;
-t.FutureDate = IDates.FutureDate;
-t.TstzRange = IDates.UnboundedTstzRange;
-
-t.Coordinate = IGeography.Coordinate;
-t.LatLngObject = IGeography.LatLngObject;
-t.GeographyPointTuple = IGeography.GeographyPointTuple;
-
-t.tripSeasons = ITrip.tripSeasonSchema;
-t.difficultyLevels = ITrip.DifficultyLevels();
-
-t.CoercedNumber = IUtils.CoercedNumber;
-t.PositiveNumber = INumber.PositiveNumber;
-
-t.Parse = (schema: TSchema, data: unknown): Static<TSchema> => {
-  const isValid = Value.Check(schema, data);
-
-  if (!isValid) {
-    const errors = [...Value.Errors(schema, data)];
-
-    const errs: ValidationError[] = [];
-
-    for (const err of errors) {
-      const cleanPath = err.path
-        ? err.path.replace(/^\//, "").replace(/\//g, ".")
-        : "root";
-
-      if (err.message?.includes("found: undefined")) {
-        errs.push({
-          name: cleanPath,
-          message: `${cleanPath} is required but was not provided`,
-          originalMessage: err.message,
-        });
-      } else {
-        let cleanMessage = "";
-        if (err.schema?.error && typeof err.schema.error === "string") {
-          cleanMessage = err.schema.error;
-        } else {
-          cleanMessage = `${cleanPath} is invalid`;
-        }
-        errs.push({
-          name: cleanPath,
-          message: cleanMessage,
-          originalMessage: err.message,
-          originalExpected: err.schema.static,
-          originalReceived: err.value,
-          originalPath: err.path,
-        });
-      }
-    }
-
-    throw errs;
-  }
-
-  return Value.Cast(schema, data);
-};
-
-t.TryParse = <T extends TSchema>(
-  schema: TSchema,
-  data: unknown,
-): TryParseResponse<T> => {
-  const isValid = Value.Check(schema, data);
-
-  if (!isValid) {
-    const errors = [...Value.Errors(schema, data)];
-
-    const errs: ValidationError[] = [];
-
-    for (const err of errors) {
-      const cleanPath = err.path
-        ? err.path.replace(/^\//, "").replace(/\//g, ".")
-        : "root";
-
-      if (err.message?.includes("found: undefined")) {
-        errs.push({
-          name: cleanPath,
-          message: `${cleanPath} is required but was not provided`,
-          originalMessage: err.message,
-        });
-      } else {
-        let cleanMessage = "";
-        if (err.schema?.error && typeof err.schema.error === "string") {
-          cleanMessage = err.schema.error;
-        } else {
-          cleanMessage = err.message || `${cleanPath} is invalid`;
-        }
-
-        errs.push({
-          name: cleanPath,
-          message: cleanMessage,
-          originalMessage: err.message,
-          originalExpected: err.schema.static,
-          originalReceived: err.value,
-          originalPath: err.path,
-        });
-      }
-    }
-
-    return {
-      data: null,
-      error: errs,
-    };
-  }
-
-  return {
-    data: Value.Decode(schema, data),
-    error: null,
-  };
-};
-
-import * as TypeBox from "@sinclair/typebox";
-
-import { Csv } from "./src/csv_type";
-import {
-  type CamelCaseSchema,
-  asCamelCaseSchema,
-} from "./src/validation/case-conversion";
-
-export type * from "@sinclair/typebox";
-
-// destructure everything from TypeBox *except* Type
-const { Type: _, ...RestOfValues } = TypeBox;
-
-export { RestOfValues };
-
-export { FormatRegistry, Kind, TypeRegistry } from "@sinclair/typebox";
-
-export { Value } from "@sinclair/typebox/value";
-
-export * from "./src/options";
-
-export * from "./src/validation/error";

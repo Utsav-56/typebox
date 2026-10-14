@@ -1,5 +1,5 @@
 import { Kind } from "@sinclair/typebox/type";
-import type { RangeOptions, TSchema, TTransform } from "../..";
+import type { TSchema, TTransform } from "../..";
 import type { Options } from "../option";
 import type { NumberOptions } from "@sinclair/typebox";
 import { Registry } from "../type_registration";
@@ -205,3 +205,15 @@ export function PrimeNumber(
     onlyPrime: true,
   });
 }
+
+export const NumberExtensionImplementation = {
+  Numeric,
+  PositiveNumber,
+  NegativeNumber,
+  Integer,
+  EvenNumber,
+  OddNumber,
+  PrimeNumber,
+};
+
+export type NumberExtension = typeof NumberExtensionImplementation;

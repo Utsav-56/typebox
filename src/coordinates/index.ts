@@ -167,3 +167,17 @@ export function Coordinate(
     },
   );
 }
+
+// export interface CoordinateExtension {
+//   Coordinate: (options?: CoordinateOptions) => TTuple<[TLongitude, TLatitude]>;
+//   Latitude: (options?: LatitudeOptions) => TLatitude;
+//   Longitude: (options?: LatitudeOptions) => TLongitude;
+// }
+
+export const CoordinateExtensionImplementation = {
+  Coordinate,
+  Latitude,
+  Longitude,
+};
+
+export type CoordinateExtension = typeof CoordinateExtensionImplementation;
