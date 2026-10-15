@@ -19,14 +19,20 @@ import {
   CoordinateExtensionImplementation,
   type CoordinateExtension,
 } from "./src/coordinates";
-import {
-  FileExtensionImplementation,
-  type FileExtension,
-} from "./src/files/file";
+import { FileExtensionImplementation, type FileExtension } from "./src/files";
 import {
   NumberExtensionImplementation,
   type NumberExtension,
+  type TNumeric,
 } from "./src/numbers";
+import {
+  UtilsExtensionImplementation,
+  type UtilsExtension,
+} from "./src/util-types";
+import {
+  DataTypesExtensionImplementation,
+  type DataTypesExtension,
+} from "./src/data_types";
 
 export type * from "@sinclair/typebox";
 
@@ -192,7 +198,9 @@ export interface CustomExtensions
     AuthExtension,
     CoordinateExtension,
     FileExtension,
-    NumberExtension {}
+    NumberExtension,
+    UtilsExtension,
+    DataTypesExtension {}
 
 export const t = Object.assign(
   {
@@ -202,6 +210,8 @@ export const t = Object.assign(
     ...CoordinateExtensionImplementation,
     ...FileExtensionImplementation,
     ...NumberExtensionImplementation,
+    ...UtilsExtensionImplementation,
+    ...DataTypesExtensionImplementation,
   },
   TypeBoxBuilder,
 ) as typeof TypeBoxBuilder & CustomExtensions;

@@ -12,6 +12,9 @@
     "types": [
       "bun"
     ],
+    "declaration": true, // Generates .d.ts files
+    "declarationMap": true, // Maps IDE go-to-definition back to original .ts source files
+    "outDir": "./dist", // Where the compiled JS and declaration types will live
     // Bundler mode
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

@@ -5,29 +5,33 @@ import type { NumberOptions } from "@sinclair/typebox";
 import { Registry } from "../type_registration";
 import { Type as t } from "@sinclair/typebox";
 
-export interface NumericOptions
+export interface IntegerTypesOptions
   extends
     Options<number, number[]>,
     Omit<NumberOptions, "default" | "examples"> {
-  /**
-   * The minimum value that can be present in the number
-   */
-  min?: number;
-
-  /**
-   * The maximum value that can be present in the number
-   */
-  max?: number;
-
   onlyEven?: boolean;
   onlyOdd?: boolean;
 
   onlyPositive?: boolean;
   onlyNegative?: boolean;
 
-  onlyInteger?: boolean;
-
   onlyPrime?: boolean;
+}
+
+export interface IntegerOptions extends IntegerTypesOptions {
+  /**
+   * The minimum value that can be present in the number
+   */
+  min?: number | bigint;
+
+  /**
+   * The maximum value that can be present in the number
+   */
+  max?: number | bigint;
+}
+
+export interface NumericOptions extends IntegerOptions {
+  onlyInteger?: boolean;
 }
 
 export type OpenApiNumberFormats = "integer" | "float" | "double" | "long";
@@ -45,6 +49,8 @@ export interface TNumeric extends TTransform<TSchema, number>, NumericOptions {
 class NumericRegistry extends Registry<TNumeric, number, string> {
   validator(schema: TNumeric, value: unknown): string | null {
     const numberValue = typeof value === "number" ? value : Number(value);
+
+    const isOnlyPositive = schema.onlyPositive || schema.unsigned;
 
     if (isNaN(numberValue)) {
       return `Invalid value, expected a number but received ${JSON.stringify(value)}`;
@@ -66,7 +72,7 @@ class NumericRegistry extends Registry<TNumeric, number, string> {
       return "Value must be an odd number.";
     }
 
-    if (schema.onlyPositive && numberValue <= 0) {
+    if (isOnlyPositive && numberValue <= 0) {
       return "Value must be a positive number.";
     }
 
@@ -159,9 +165,7 @@ export function NegativeNumber(
   });
 }
 
-export function Integer(
-  options?: Omit<NumericOptions, "onlyInteger">,
-): TNumeric {
+export function Integer(options?: IntegerOptions): TNumeric {
   return Numeric(
     {
       description: "An integer number, without any decimal part.",
@@ -206,6 +210,145 @@ export function PrimeNumber(
   });
 }
 
+export const INT8_MIN = -128;
+export const INT8_MAX = 127;
+export const UINT8_MAX = 255;
+
+export const INT16_MIN = -32768;
+export const INT16_MAX = 32767;
+export const UINT16_MAX = 65535;
+
+export const INT24_MIN = -8388608;
+export const INT24_MAX = 8388607;
+export const UINT24_MAX = 16777215;
+
+export const INT32_MIN = -2147483648;
+export const INT32_MAX = 2147483647;
+export const UINT32_MAX = 4294967295;
+
+export const INT64_MIN = -9223372036854775808n;
+export const INT64_MAX = 9223372036854775807n;
+export const UINT64_MAX = 18446744073709551615n;
+
+interface MakeDescriptionOptions {
+  description: string;
+  examples: number[];
+  error: string;
+}
+
+export function makeDescriptiveOptions(
+  label: string,
+  isUnsigned: boolean,
+  min: number | bigint | undefined,
+  max: number | bigint | undefined,
+): MakeDescriptionOptions {
+  let description: string;
+
+  if (isUnsigned) {
+    description = `An unsigned (non-negative)  ${label || "integer"} number between ${min} and ${max}.`;
+  }
+  description = `An ${label || "integer"} number between ${min} and ${max}.`;
+
+  return {
+    description,
+    error: `The value must be between ${min} and ${max}.`,
+    examples: [Number(min), Number(max)],
+  };
+}
+
+export function TinyInteger(options?: IntegerTypesOptions): TNumeric {
+  const isUnsigned = options?.onlyPositive || false;
+
+  return Numeric(
+    {
+      ...makeDescriptiveOptions(
+        "tiny integer",
+        isUnsigned,
+        isUnsigned ? 0 : INT8_MIN,
+        isUnsigned ? UINT8_MAX : INT8_MAX,
+      ),
+      ...options,
+      examples: [1, 2, 3, 4, 5],
+      minimum: isUnsigned ? 0 : INT8_MIN,
+      maximum: isUnsigned ? UINT8_MAX : INT8_MAX,
+
+      onlyInteger: true,
+    },
+    "integer",
+  );
+}
+
+export function SmallInteger(options?: IntegerTypesOptions): TNumeric {
+  const isUnsigned = options?.onlyPositive || false;
+
+  return Numeric(
+    {
+      ...makeDescriptiveOptions(
+        "small integer",
+        isUnsigned,
+        isUnsigned ? 0 : INT16_MIN,
+        isUnsigned ? UINT16_MAX : INT16_MAX,
+      ),
+
+      min: isUnsigned ? 0 : INT16_MIN,
+      max: isUnsigned ? UINT16_MAX : INT16_MAX,
+      ...options,
+      onlyInteger: true,
+    },
+    "integer",
+  );
+}
+
+export function MediumInteger(options?: IntegerTypesOptions): TNumeric {
+  const isUnsigned = options?.onlyPositive || false;
+
+  return Numeric({
+    ...makeDescriptiveOptions(
+      "medium integer",
+      isUnsigned,
+      isUnsigned ? 0 : INT24_MIN,
+      isUnsigned ? UINT24_MAX : INT24_MAX,
+    ),
+    ...options,
+
+    min: isUnsigned ? 0 : INT24_MIN,
+    max: isUnsigned ? UINT24_MAX : INT24_MAX,
+  });
+}
+
+export function Integer32(options?: IntegerTypesOptions): TNumeric {
+  const isUnsigned = options?.onlyPositive || false;
+
+  return Numeric({
+    ...makeDescriptiveOptions(
+      "32-bit integer",
+      isUnsigned,
+      isUnsigned ? 0 : INT32_MIN,
+      isUnsigned ? UINT32_MAX : INT32_MAX,
+    ),
+    ...options,
+
+    min: isUnsigned ? 0 : INT32_MIN,
+    max: isUnsigned ? UINT32_MAX : INT32_MAX,
+  });
+}
+
+export function BigInteger(options?: IntegerTypesOptions): TNumeric {
+  const isUnsigned = options?.onlyPositive || false;
+
+  return Numeric({
+    ...makeDescriptiveOptions(
+      "64-bit integer",
+      isUnsigned,
+      isUnsigned ? 0n : INT64_MIN,
+      isUnsigned ? UINT64_MAX : INT64_MAX,
+    ),
+    ...options,
+    min: options?.onlyPositive ? 0n : INT64_MIN,
+    max: options?.onlyPositive ? UINT64_MAX : INT64_MAX,
+  });
+}
+
 export const NumberExtensionImplementation = {
   Numeric,
   PositiveNumber,
@@ -214,6 +357,12 @@ export const NumberExtensionImplementation = {
   EvenNumber,
   OddNumber,
   PrimeNumber,
+
+  TinyInteger,
+  SmallInteger,
+  MediumInteger,
+  Integer32,
+  BigInteger,
 };
 
 export type NumberExtension = typeof NumberExtensionImplementation;

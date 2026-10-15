@@ -38,7 +38,6 @@ export interface PasswordOptions extends Options {
 
 export interface TPassword extends TSchema, PasswordOptions {
   [Kind]: "Password";
-  options: PasswordOptions;
   static: string;
   type: "string";
   format: "string";
@@ -53,12 +52,6 @@ class PasswordRegistry extends Registry<TPassword, string, string> {
     } catch (error) {
       return `Invalid value, expected a string but received ${JSON.stringify(value)}`;
     }
-
-    /**
-     * THe default min and max length for password, even if the user does not provide them
-     */
-    let minLength = 8;
-    let maxLength = 64;
 
     // all these security are default to true, if the user does not provide them, explicitly set them to false to disable them
     const requireUpperCase = schema.requireUpperCase ?? true;

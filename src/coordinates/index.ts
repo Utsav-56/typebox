@@ -25,6 +25,8 @@ export interface TLongitude extends Transformed<number>, LatitudeOptions {
   format: "integer";
 }
 
+export type TCoordinate = TTuple<[TLongitude, TLatitude]>;
+
 type Range = [number, number];
 
 function validateRange(
@@ -146,9 +148,7 @@ export interface CoordinateOptions extends Options<number, number[]> {
   maxBounds?: Range;
 }
 
-export function Coordinate(
-  options?: CoordinateOptions,
-): TTuple<[TLongitude, TLatitude]> {
+export function Coordinate(options?: CoordinateOptions): TCoordinate {
   return t.Tuple(
     [
       Longitude({

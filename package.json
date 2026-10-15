@@ -1,26 +1,26 @@
 {
-  "name": "@unseen/typebox",
-  "module": "index.ts",
-  "type": "module",
-  "private": true,
-  "devDependencies": {
-    "@types/bun": "latest",
-    "oxfmt": "^0.72.0",
-    "oxlint": "^1.87.0",
-    "oxlint-tsgolint": "^7.0.2003"
-  },
-  "peerDependencies": {
-    "typescript": "^7.0.2",
-    "@sinclair/typebox": "^0.34.8"
-  },
-  "exports": {
-    ".": {
-      "import": "./index.ts",
-      "types": "./index.ts"
-    },
-    "./error": {
-      "import": "./src/validation/error.ts",
-      "types": "./src/validation/error.ts"
-    }
-  }
+	"name": "@unseen/typebox",
+	"private": true,
+	"type": "module",
+	"module": "index.ts",
+	"exports": {
+		".": {
+			"import": "./index.ts",
+			"types": "./index.ts"
+		},
+		"./error": {
+			"import": "./src/validation/error.ts",
+			"types": "./src/validation/error.ts"
+		}
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"oxfmt": "^0.72.0",
+		"oxlint": "^1.87.0",
+		"oxlint-tsgolint": "^7.0.2003"
+	},
+	"peerDependencies": {
+		"@sinclair/typebox": "^0.34.8",
+		"typescript": "^7.0.2"
+	}
 }

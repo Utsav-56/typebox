@@ -1,21 +1,38 @@
 import { Value } from "@sinclair/typebox/value";
-import type { Static, TSchema, ValidationError } from "../..";
+import type { Static, TSchema } from "../..";
+
+import { TransformDecodeError } from "@sinclair/typebox/value";
+
+export type ValidationError = {
+  name: string;
+  message: string;
+  originalMessage?: string;
+  originalExpected?: unknown;
+  originalReceived?: unknown;
+  originalPath?: string;
+};
+
+export type TryParseResponse<T extends TSchema> = {
+  data: Static<T> | null;
+  error: ValidationError[] | null;
+};
+
+function formatErrorPath(path?: string): string {
+  return path ? path.replace(/^\//, "").replace(/\//g, ".") : "root";
+}
 
 export function TryParse<T extends TSchema>(
-  schema: TSchema,
+  schema: T,
   data: unknown,
 ): TryParseResponse<T> {
   const isValid = Value.Check(schema, data);
 
   if (!isValid) {
     const errors = [...Value.Errors(schema, data)];
-
     const errs: ValidationError[] = [];
 
     for (const err of errors) {
-      const cleanPath = err.path
-        ? err.path.replace(/^\//, "").replace(/\//g, ".")
-        : "root";
+      const cleanPath = formatErrorPath(err.path);
 
       if (err.message?.includes("found: undefined")) {
         errs.push({
@@ -24,12 +41,10 @@ export function TryParse<T extends TSchema>(
           originalMessage: err.message,
         });
       } else {
-        let cleanMessage = "";
-        if (err.schema?.error && typeof err.schema.error === "string") {
-          cleanMessage = err.schema.error;
-        } else {
-          cleanMessage = err.message || `${cleanPath} is invalid`;
-        }
+        const cleanMessage =
+          typeof err.schema?.error === "string"
+            ? err.schema.error
+            : err.message || `${cleanPath} is invalid`;
 
         errs.push({
           name: cleanPath,
@@ -48,13 +63,53 @@ export function TryParse<T extends TSchema>(
     };
   }
 
-  return {
-    data: Value.Decode(schema, data),
-    error: null,
-  };
-}
+  // Safe Decode phase: catches any exception thrown inside registry.parse()
+  try {
+    return {
+      data: Value.Decode(schema, data),
+      error: null,
+    };
+  } catch (err) {
+    if (err instanceof TransformDecodeError) {
+      const cleanPath = formatErrorPath(err.path);
+      const innerMessage =
+        err.error instanceof Error ? err.error.message : err.message;
 
-export type TryParseResponse<T extends TSchema> = {
-  data: Static<T> | null;
-  error: ValidationError[] | null;
-};
+      const cleanMessage =
+        typeof err.schema?.error === "string"
+          ? err.schema.error
+          : innerMessage || `${cleanPath} failed to decode`;
+
+      return {
+        data: null,
+        error: [
+          {
+            name: cleanPath,
+            message: cleanMessage,
+            originalMessage: innerMessage,
+            originalExpected: err.schema?.static,
+            originalReceived: err.value,
+            originalPath: err.path,
+          },
+        ],
+      };
+    }
+
+    // Fallback for any unexpected non-TypeBox runtime error
+    const fallbackMessage =
+      err instanceof Error ? err.message : "Unknown decoding error occurred";
+
+    return {
+      data: null,
+      error: [
+        {
+          name: "root",
+          message: fallbackMessage,
+          originalMessage: fallbackMessage,
+          originalReceived: data,
+          originalPath: "",
+        },
+      ],
+    };
+  }
+}
