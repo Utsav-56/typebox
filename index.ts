@@ -217,3 +217,5 @@ export const t = Object.assign(
 ) as typeof TypeBoxBuilder & CustomExtensions;
 
 export type TType = typeof t;
+
+export type { TNumeric } from "./src/numbers";

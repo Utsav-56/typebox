@@ -13,6 +13,7 @@
       "bun"
     ],
     "declaration": true, // Generates .d.ts files
+    // "isolatedDeclarations": true, // Ensures each file can be compiled in isolation
     "declarationMap": true, // Maps IDE go-to-definition back to original .ts source files
     "outDir": "./dist", // Where the compiled JS and declaration types will live
     // Bundler mode
