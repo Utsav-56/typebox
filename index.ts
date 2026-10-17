@@ -32,6 +32,10 @@ import {
   DataTypesExtensionImplementation,
   type DataTypesExtension,
 } from "./src/data_types";
+import {
+  DrizzleExtensionImplementation,
+  type DrizzleExtension,
+} from "./src/drizzle_releted";
 
 export type * from "@sinclair/typebox";
 
@@ -199,7 +203,8 @@ export interface CustomExtensions
     FileExtension,
     NumberExtension,
     UtilsExtension,
-    DataTypesExtension {}
+    DataTypesExtension,
+    DrizzleExtension {}
 
 export const t = Object.assign(
   {
@@ -211,6 +216,7 @@ export const t = Object.assign(
     ...NumberExtensionImplementation,
     ...UtilsExtensionImplementation,
     ...DataTypesExtensionImplementation,
+    ...DrizzleExtensionImplementation,
   },
   TypeBoxBuilder,
 ) as typeof TypeBoxBuilder & CustomExtensions;
@@ -219,4 +225,4 @@ export type TType = typeof t;
 
 export type { TNumeric } from "./src/numbers";
 export type { TPassword } from "./src/auth_releted/password";
-export type * from "./src/auth_releted/better_auth"
+export type * from "./src/auth_releted/better_auth";
