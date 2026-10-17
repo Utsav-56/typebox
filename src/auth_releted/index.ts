@@ -1,4 +1,5 @@
 import { Password, type PasswordOptions, type TPassword } from "./password";
+import { BetterAuthExtensionImplementation } from "./better_auth";
 
 export type * from "./password";
 export * from "./password";
@@ -9,6 +10,7 @@ export * from "./password";
 
 export const AuthExtensionImplementation = {
   Password,
+  betterAuth: BetterAuthExtensionImplementation,
 };
 
 export type AuthExtension = typeof AuthExtensionImplementation;

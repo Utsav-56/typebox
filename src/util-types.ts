@@ -114,6 +114,14 @@ function Uuid() {
 }
 
 export const UtilsExtensionImplementation = {
+  /**
+   * Creates an  union type from a list of possible string values.
+   *
+   * it is optional, but if provided, the value must be one of the provided values only.
+   *
+   * @param values the possible values in the literal
+   * @returns
+   */
   AnyOf,
   OneOf,
   AnyOfOptional,

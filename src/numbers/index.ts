@@ -50,7 +50,7 @@ class NumericRegistry extends Registry<TNumeric, number, string> {
   validator(schema: TNumeric, value: unknown): string | null {
     const numberValue = typeof value === "number" ? value : Number(value);
 
-    const isOnlyPositive = schema.onlyPositive || schema.unsigned;
+    const isOnlyPositive = schema.onlyPositive;
 
     if (isNaN(numberValue)) {
       return `Invalid value, expected a number but received ${JSON.stringify(value)}`;

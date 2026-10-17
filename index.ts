@@ -23,7 +23,6 @@ import { FileExtensionImplementation, type FileExtension } from "./src/files";
 import {
   NumberExtensionImplementation,
   type NumberExtension,
-  type TNumeric,
 } from "./src/numbers";
 import {
   UtilsExtensionImplementation,
@@ -219,3 +218,5 @@ export const t = Object.assign(
 export type TType = typeof t;
 
 export type { TNumeric } from "./src/numbers";
+export type { TPassword } from "./src/auth_releted/password";
+export type * from "./src/auth_releted/better_auth"

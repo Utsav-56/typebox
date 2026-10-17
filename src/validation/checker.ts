@@ -1,101 +1,99 @@
-import { Value } from "@sinclair/typebox/value";
-import type { Static, TSchema } from "../..";
+import type { StaticDecode, TSchema } from "@sinclair/typebox";
+import { TypeCheck } from "@sinclair/typebox/compiler";
+import {
+  TransformDecodeError,
+  Value,
+  type ValueError,
+} from "@sinclair/typebox/value";
+import type { ValidationError } from "./error";
 
-import { TransformDecodeError } from "@sinclair/typebox/value";
+export type TryParseResponse<T extends TSchema> =
+  | { data: StaticDecode<T>; error: null }
+  | { data: null; error: ValidationError[] };
 
-export type ValidationError = {
-  name: string;
-  message: string;
-  originalMessage?: string;
-  originalExpected?: unknown;
-  originalReceived?: unknown;
-  originalPath?: string;
-};
+const formatPath = (path?: string): string =>
+  path ? path.replace(/^\//, "").replace(/\//g, ".") : "root";
 
-export type TryParseResponse<T extends TSchema> = {
-  data: Static<T> | null;
-  error: ValidationError[] | null;
-};
+const resolveMessage = (
+  schema: TSchema | undefined,
+  fallbackMessage: string | undefined,
+  defaultLabel: string,
+): string =>
+  typeof schema?.error === "string"
+    ? schema.error
+    : fallbackMessage || defaultLabel;
 
-function formatErrorPath(path?: string): string {
-  return path ? path.replace(/^\//, "").replace(/\//g, ".") : "root";
-}
+function formatValueError(err: ValueError): ValidationError {
+  const name = formatPath(err.path);
 
-export function TryParse<T extends TSchema>(
-  schema: T,
-  data: unknown,
-): TryParseResponse<T> {
-  const isValid = Value.Check(schema, data);
-
-  if (!isValid) {
-    const errors = [...Value.Errors(schema, data)];
-    const errs: ValidationError[] = [];
-
-    for (const err of errors) {
-      const cleanPath = formatErrorPath(err.path);
-
-      if (err.message?.includes("found: undefined")) {
-        errs.push({
-          name: cleanPath,
-          message: `${cleanPath} is required but was not provided`,
-          originalMessage: err.message,
-        });
-      } else {
-        const cleanMessage =
-          typeof err.schema?.error === "string"
-            ? err.schema.error
-            : err.message || `${cleanPath} is invalid`;
-
-        errs.push({
-          name: cleanPath,
-          message: cleanMessage,
-          originalMessage: err.message,
-          originalExpected: err.schema.static,
-          originalReceived: err.value,
-          originalPath: err.path,
-        });
-      }
-    }
-
+  if (err.message?.includes("found: undefined")) {
     return {
-      data: null,
-      error: errs,
+      name,
+      message: `${name} is required but was not provided`,
+      originalMessage: err.message,
+      type: String(err.type),
     };
   }
 
-  // Safe Decode phase: catches any exception thrown inside registry.parse()
+  return {
+    name,
+    message: resolveMessage(err.schema, err.message, `${name} is invalid`),
+    originalMessage: err.message,
+    originalExpected: err.schema?.static,
+    originalReceived: err.value,
+    originalPath: err.path,
+    type: String(err.type),
+  };
+}
+
+export function TryParse<T extends TSchema>(
+  schema: T | TypeCheck<T>,
+  data: unknown,
+): TryParseResponse<T> {
+  const isCompiled = schema instanceof TypeCheck;
+  const isValid = isCompiled ? schema.Check(data) : Value.Check(schema, data);
+
+  if (!isValid) {
+    const rawErrors = isCompiled
+      ? schema.Errors(data)
+      : Value.Errors(schema, data);
+    return {
+      data: null,
+      error: Array.from(rawErrors, formatValueError),
+    };
+  }
+
   try {
     return {
-      data: Value.Decode(schema, data),
+      data: isCompiled ? schema.Decode(data) : Value.Decode(schema, data),
       error: null,
     };
   } catch (err) {
     if (err instanceof TransformDecodeError) {
-      const cleanPath = formatErrorPath(err.path);
-      const innerMessage =
+      const name = formatPath(err.path);
+      const innerMsg =
         err.error instanceof Error ? err.error.message : err.message;
-
-      const cleanMessage =
-        typeof err.schema?.error === "string"
-          ? err.schema.error
-          : innerMessage || `${cleanPath} failed to decode`;
 
       return {
         data: null,
         error: [
           {
-            name: cleanPath,
-            message: cleanMessage,
-            originalMessage: innerMessage,
+            name,
+            message: resolveMessage(
+              err.schema,
+              innerMsg,
+              `${name} failed to decode`,
+            ),
+            originalMessage: innerMsg,
             originalExpected: err.schema?.static,
             originalReceived: err.value,
             originalPath: err.path,
+            type: "decode",
           },
         ],
       };
     }
 
-    // Fallback for any unexpected non-TypeBox runtime error
     const fallbackMessage =
       err instanceof Error ? err.message : "Unknown decoding error occurred";
 
@@ -108,6 +106,7 @@ export function TryParse<T extends TSchema>(
           originalMessage: fallbackMessage,
           originalReceived: data,
           originalPath: "",
+          type: "exception",
         },
       ],
     };
