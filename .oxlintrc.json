@@ -95,8 +95,4 @@
     "builtin": true,
     "node": true
   },
-  "options": {
-    "typeAware": true,
-    "typeCheck": true
-  }
 }
