@@ -48,6 +48,7 @@ export { RestOfValues };
 export { FormatRegistry, Kind, TypeRegistry } from "@sinclair/typebox";
 
 export { Value } from "@sinclair/typebox/value";
+export * from "@sinclair/typebox/compiler";
 
 export * from "./src/validation/error";
 
