@@ -37,6 +37,10 @@ import {
   type DrizzleExtension,
 } from "./src/drizzle_releted";
 import { Registry } from "./src/type_registration";
+import {
+  TransformationExtensionImplementation,
+  type TransformationExtension,
+} from "./src/transformation";
 
 export type * from "@sinclair/typebox";
 
@@ -206,7 +210,8 @@ export interface CustomExtensions
     NumberExtension,
     UtilsExtension,
     DataTypesExtension,
-    DrizzleExtension {}
+    DrizzleExtension,
+    TransformationExtension {}
 
 export const t = Object.assign(
   {
@@ -219,6 +224,7 @@ export const t = Object.assign(
     ...UtilsExtensionImplementation,
     ...DataTypesExtensionImplementation,
     ...DrizzleExtensionImplementation,
+    ...TransformationExtensionImplementation,
   },
   TypeBoxBuilder,
 ) as typeof TypeBoxBuilder & CustomExtensions;
@@ -229,3 +235,4 @@ export type { TNumeric } from "./src/numbers";
 export type { TPassword } from "./src/auth_releted/password";
 export type * from "./src/auth_releted/better_auth";
 export { Registry } from "./src/type_registration";
+export type { TryParseResponse } from "./src/validation/checker";

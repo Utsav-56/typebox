@@ -113,6 +113,10 @@ function Uuid() {
   });
 }
 
+function NodeEnv() {
+  return OneOf(["development", "production", "test"] as const, "development");
+}
+
 export const UtilsExtensionImplementation = {
   /**
    * Creates an  union type from a list of possible string values.
@@ -129,6 +133,7 @@ export const UtilsExtensionImplementation = {
   FixedLengthString,
   FixedSizeArray,
   Uuid,
+  NodeEnv,
 };
 
 export type UtilsExtension = typeof UtilsExtensionImplementation;
