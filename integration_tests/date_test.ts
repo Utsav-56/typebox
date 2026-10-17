@@ -1,4 +1,4 @@
-import { t, type Static } from "..";
+import { t, type Static } from "../src";
 
 const userSchema = t.Object({
   date: t.DateTime({

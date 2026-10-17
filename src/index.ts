@@ -9,38 +9,35 @@ import * as TypeBox from "@sinclair/typebox";
 import {
   ValidationExtensionImplementation,
   type ValidationExtension,
-} from "./src/validation";
-import { DateExtensionImplementation, type DateExtension } from "./src/dates";
+} from "./validation";
+import { DateExtensionImplementation, type DateExtension } from "./dates";
 import {
   AuthExtensionImplementation,
   type AuthExtension,
-} from "./src/auth_releted";
+} from "./auth_releted";
 import {
   CoordinateExtensionImplementation,
   type CoordinateExtension,
-} from "./src/coordinates";
-import { FileExtensionImplementation, type FileExtension } from "./src/files";
-import {
-  NumberExtensionImplementation,
-  type NumberExtension,
-} from "./src/numbers";
+} from "./coordinates";
+import { FileExtensionImplementation, type FileExtension } from "./files";
+import { NumberExtensionImplementation, type NumberExtension } from "./numbers";
 import {
   UtilsExtensionImplementation,
   type UtilsExtension,
-} from "./src/util-types";
+} from "./util-types";
 import {
   DataTypesExtensionImplementation,
   type DataTypesExtension,
-} from "./src/data_types";
+} from "./data_types";
 import {
   DrizzleExtensionImplementation,
   type DrizzleExtension,
-} from "./src/drizzle_releted";
-import { Registry } from "./src/type_registration";
+} from "./drizzle_releted";
+import { Registry } from "./type_registration";
 import {
   TransformationExtensionImplementation,
   type TransformationExtension,
-} from "./src/transformation";
+} from "./transformation";
 
 export type * from "@sinclair/typebox";
 
@@ -54,7 +51,7 @@ export { FormatRegistry, Kind, TypeRegistry } from "@sinclair/typebox";
 export { Value } from "@sinclair/typebox/value";
 export * from "@sinclair/typebox/compiler";
 
-export * from "./src/validation/error";
+export * from "./validation/error";
 
 /**
  * ? Fork of ajv-formats without ajv as dependencies
@@ -231,8 +228,29 @@ export const t = Object.assign(
 
 export type TType = typeof t;
 
-export type { TNumeric } from "./src/numbers";
-export type { TPassword } from "./src/auth_releted/password";
-export type * from "./src/auth_releted/better_auth";
-export { Registry } from "./src/type_registration";
-export type { TryParseResponse } from "./src/validation/checker";
+export type { TNumeric } from "./numbers";
+export type { TPassword } from "./auth_releted/password";
+export type * from "./auth_releted/better_auth";
+export { Registry } from "./type_registration";
+export type { TryParseResponse } from "./validation/checker";
+
+export type * from "./validation";
+
+export type * from "./dates";
+export type * from "./auth_releted";
+
+export type * from "./coordinates";
+
+export type * from "./files";
+
+export type * from "./numbers";
+
+export type * from "./util-types";
+
+export type * from "./data_types";
+
+export type * from "./drizzle_releted";
+
+export type * from "./type_registration";
+
+export type * from "./transformation";

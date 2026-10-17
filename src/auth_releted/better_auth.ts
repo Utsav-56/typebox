@@ -34,6 +34,32 @@ function SignupSchema<T extends TSchema[]>(options?: SignupOptions<T>) {
   return t.Composite([baseSchema, ...composites]);
 }
 
+const composites = [
+  t.Object({
+    name: t.String({
+      minLength: 3,
+      description: "The name of the user",
+    }),
+  }),
+
+  t.Object({
+    role: t.String({
+      description: "The role of the user",
+      examples: ["admin", "user", "moderator"],
+    }),
+  }),
+
+  t.Object({
+    banned: t.Boolean({
+      description: "Whether the user is banned or not",
+    }),
+  }),
+];
+
+const checkType = SignupSchema({ composites });
+
+export type TCheckType = Static<typeof checkType>;
+
 export type TSignup = Static<ReturnType<typeof SignupSchema>>;
 
 function LoginSchema<T extends TSchema[]>(options?: SignupOptions<T>) {
@@ -99,8 +125,8 @@ export const SendVerificationEmail = t.Object({
 });
 
 export const BetterAuthExtensionImplementation = {
-  SignupSchema,
-  LoginSchema,
+  // SignupSchema,
+  // LoginSchema,
   ChangePassword,
   RequestResetPassword,
   ResetPassword,

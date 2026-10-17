@@ -1,9 +1,0 @@
-{
-  "$schema": "./node_modules/oxfmt/configuration_schema.json",
-  "ignorePatterns": [],
-  "sortImports": true,
-  "tabWidth": 4,
-  "useTabs": true,
-  "bracketSameLine": true,
-  
-}

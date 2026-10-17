@@ -1,7 +1,7 @@
 import { Kind, Type as t, type TUnsafe } from "@sinclair/typebox";
 import type { Options } from "../option";
 import { Registry } from "../type_registration";
-import type { TArray } from "../..";
+import type { TArray } from "..";
 
 export type _TFileSchema = TUnsafe<File> & {
   [Kind]: "File";

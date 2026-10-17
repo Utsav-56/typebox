@@ -5,3 +5,5 @@ export const ValidationExtensionImplementation = {
 };
 
 export type ValidationExtension = typeof ValidationExtensionImplementation;
+
+export type * from "./checker";

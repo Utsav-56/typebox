@@ -1,5 +1,5 @@
 import { Kind } from "@sinclair/typebox/type";
-import type { TSchema, TTransform } from "../..";
+import type { TSchema, TTransform } from "..";
 import type { Options } from "../option";
 import type { NumberOptions } from "@sinclair/typebox";
 import { Registry } from "../type_registration";
@@ -16,9 +16,7 @@ export interface IntegerTypesOptions
   onlyNegative?: boolean;
 
   onlyPrime?: boolean;
-}
 
-export interface IntegerOptions extends IntegerTypesOptions {
   /**
    * The minimum value that can be present in the number
    */
@@ -30,7 +28,7 @@ export interface IntegerOptions extends IntegerTypesOptions {
   max?: number | bigint;
 }
 
-export interface NumericOptions extends IntegerOptions {
+export interface NumericOptions extends IntegerTypesOptions {
   onlyInteger?: boolean;
 }
 
@@ -163,19 +161,6 @@ export function NegativeNumber(
     ...options,
     onlyNegative: true,
   });
-}
-
-export function Integer(options?: IntegerOptions): TNumeric {
-  return Numeric(
-    {
-      description: "An integer number, without any decimal part.",
-      examples: [1, 2, 3, 4, 5],
-
-      ...options,
-      onlyInteger: true,
-    },
-    "integer",
-  );
 }
 
 export function EvenNumber(
@@ -353,7 +338,7 @@ export const NumberExtensionImplementation = {
   Numeric,
   PositiveNumber,
   NegativeNumber,
-  Integer,
+
   EvenNumber,
   OddNumber,
   PrimeNumber,

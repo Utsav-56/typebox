@@ -1,27 +1,33 @@
 {
-	"name": "@utsav56/typebox",
-	"private": true,
-	"type": "module",
-	"module": "index.ts",
-	"exports": {
-		".": {
-			"import": "./index.ts",
-			"types": "./index.ts"
-		},
-		"./error": {
-			"import": "./src/validation/error.ts",
-			"types": "./src/validation/error.ts"
-		}
-	},
-	"dependencies": {
-		"typescript": "6"
-	},
-	"devDependencies": {
-		"@types/bun": "latest",
-		"oxfmt": "^0.72.0",
-		"oxlint": "^1.87.0"
-	},
-	"peerDependencies": {
-		"@sinclair/typebox": "^0.34.8"
-	}
+  "name": "@utsav56/typebox",
+  "private": true,
+  "files": [
+    "dist"
+  ],
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./error": {
+      "types": "./dist/validation/error.d.ts",
+      "import": "./dist/validation/error.js"
+    }
+  },
+  "dependencies": {
+    "@sinclair/typebox": "^0.34.8"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "oxfmt": "^0.72.0",
+    "oxlint": "^1.87.0",
+    "typescript": "6"
+  },
+  "peerDependencies": {
+    "@sinclair/typebox": "^0.34.8"
+  }
 }

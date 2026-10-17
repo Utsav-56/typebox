@@ -1,6 +1,6 @@
 import { Kind, type TTransform } from "@sinclair/typebox";
 import type { Options, Transformed } from "../option";
-import type { TSchema, TTuple } from "../..";
+import type { TSchema, TTuple } from "..";
 import { Registry } from "../type_registration";
 import { coerceToNumber } from "../utils";
 
