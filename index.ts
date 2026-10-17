@@ -36,6 +36,7 @@ import {
   DrizzleExtensionImplementation,
   type DrizzleExtension,
 } from "./src/drizzle_releted";
+import { Registry } from "./src/type_registration";
 
 export type * from "@sinclair/typebox";
 
@@ -226,3 +227,4 @@ export type TType = typeof t;
 export type { TNumeric } from "./src/numbers";
 export type { TPassword } from "./src/auth_releted/password";
 export type * from "./src/auth_releted/better_auth";
+export { Registry } from "./src/type_registration";
